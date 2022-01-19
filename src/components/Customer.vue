@@ -18,36 +18,39 @@
 
             <v-card-text>
               <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.customer_firstname"
-                      label="Customer FirstName"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.customer_lastname"
-                      label="Customer LastName"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field 
-                      v-model="editedItem.customer_email"
-                      label="Customer Email"
-                      :rules="[ v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid']"
-                    ></v-text-field>
-                  </v-col>
+                <v-form v-model="isFormValid">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.customer_firstname"
+                        label="Customer FirstName"
+                        :rules="[rules.required, rules.counter,rules.notDigit]">
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.customer_lastname"
+                        label="Customer LastName"
+                        :rules="[rules.required, rules.counter,rules.notDigit]"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field 
+                        v-model="editedItem.customer_email"
+                        label="Customer Email"
+                        :rules="[rules.required, v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid']"
+                        
+                      ></v-text-field>
+                    </v-col>
                 </v-row>
-              </v-container>
-            </v-card-text>
+              </v-form>
+            </v-container>
+          </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!isFormValid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -87,8 +90,9 @@ export default {
     rules: {
       required: (value) => !!value || "Required.",
       counter: (value) => value.length <= 30 || "Max 30 characters",
-      
+      notDigit: (value) => /\d/.test(value) === false || "No digits allowed",
     },
+    isFormValid:false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -99,16 +103,16 @@ export default {
         value: "customer_id",
       },
       {
-        text: "Customer FirstName",
+        text: "FirstName",
         sortable: false,
         value: "customer_firstname",
       },
       {
-        text: "Customer LastName",
+        text: "LastName",
         sortable: false,
         value: "customer_lastname",
       },
-      { text: "Customer Email", sortable: false, value: "customer_email" },
+      { text: "Email", sortable: false, value: "customer_email" },
       { text: "Actions", value: "actions", sortable: false },
     ],
     customers: [],

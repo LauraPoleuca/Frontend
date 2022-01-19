@@ -15,39 +15,58 @@
             <v-card-title>
               <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
-
             <v-card-text>
               <v-container>
-                <v-row>
-                     <v-col cols="12">
-                    <v-select v-model="editedItem.customer_id"
-                      :items="customerIDs"
-                      filled
-                      label="Customer ID"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.customer_username"
-                      label="Customer UserName"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
+                 <v-form v-model="isFormValid">
+                  <v-row>
+                      <v-col cols="12">
+                      <v-select v-model="editedItem.customer_id"
+                        :items="customerIDs"
+                        filled
+                        label="Customer ID"
+                        :rules="[rules.required]"
+                      ></v-select>
+                    </v-col>
                     <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.customer_password"
-                      label="Customer Password"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
+                      <v-text-field
+                        v-model="editedItem.customer_username"
+                        label="Customer UserName"
+                        :rules="[rules.required, rules.counter]"
+                      ></v-text-field>
+                    </v-col>
+                      <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.customer_password"
+                        label="Customer Password"
+                        :rules="[rules.required, rules.counter]"
+                      ></v-text-field>
+                    </v-col>
+                      
+                     <v-col cols="12">
+                       <v-menu>
+                       <template v-slot:activator="{on}">
+                        <v-text-field
+                          v-model="editedItem.signup_date"
+                          v-on="on"
+                          label="Sign Up Date"
+                          :rules="[v => !!v || 'Required']"
+                        ></v-text-field>
+                      </template>
+                        <v-date-picker 
+                        v-model="editedItem.signup_date"
+                        
+                      ></v-date-picker>
+                       </v-menu>
+                    </v-col>
+                  </v-row>
+                 </v-form>
               </v-container>
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!isFormValid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -88,6 +107,7 @@ export default {
       required: (value) => !!value || "Required.",
       counter: (value) => value.length <= 30 || "Max 30 characters",
     },
+    isFormValid:false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -99,7 +119,9 @@ export default {
       },
       { text: "Username", sortable: false, value: "customer_username" },
       { text: "Password", sortable: false, value: "customer_password" },
+      { text: "Sign Up Date", sortable: false,value:"signup_date" },
       { text: "Actions", value: "actions", sortable: false },
+      
     ],
     logins: [],
     editedIndex: -1,
@@ -107,11 +129,13 @@ export default {
       customer_id: 0,
       customer_username: "",
       customer_password:"",
+      signup_date:"",
     },
     defaultItem: {
         customer_id: 0,
         customer_username: "",
         customer_password:"",
+        signup_date:"",
       
     },
     customerIDs : []
@@ -213,7 +237,7 @@ export default {
     createBackend() {
       axios
         .post(
-          `http://localhost:8080/api/login_information?&customer_id=${this.editedItem.customer_id}&customer_username=${this.editedItem.customer_username}&customer_password=${this.editedItem.customer_password}`
+          `http://localhost:8080/api/login_information?&customer_id=${this.editedItem.customer_id}&customer_username=${this.editedItem.customer_username}&customer_password=${this.editedItem.customer_password}&signup_date=${this.editedItem.signup_date}`
         )
         .then(() => {
           //this.categories.push(response.body);

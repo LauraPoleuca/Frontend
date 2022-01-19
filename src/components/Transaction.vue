@@ -18,36 +18,46 @@
 
             <v-card-text>
               <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-select v-model="editedItem.customer_id"
-                      :items="CustomerIDs"
-                      filled
-                      label="Customer ID"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.total_price"
-                      label="Total Price"
-                      
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.method_of_payment"
-                      label="Method of Payment"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
+                <v-form v-model="isFormValid">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-select v-model="editedItem.customer_id"
+                        :items="CustomerIDs"
+                        filled
+                        label="Customer ID"
+                        :rules="[rules.required]"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.total_price"
+                        label="Total Price"
+                        type="number"
+                        :rules="[rules.required,rules.greaterThanZero]"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.method_of_payment"
+                        label="Method of Payment"
+                        :rules="[rules.required, rules.counter]"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-date-picker label="Transaction Date"
+                        v-model="editedItem.transaction_date"
+                        :rules="[rules.required]"
+                      ></v-date-picker>
+                    </v-col>
+                  </v-row>
+                </v-form>
               </v-container>
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!isFormValid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -87,7 +97,9 @@ export default {
     rules: {
       required: (value) => !!value || "Required.",
       counter: (value) => value.length <= 20 || "Max 20 characters",
+      greaterThanZero:(value)=> parseInt(value)>0 || "Quantity must be greater than zero",
     },
+    isFormValid:false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -108,6 +120,7 @@ export default {
         value: "total_price",
       },
       { text: "Method of Payment", sortable: false, value: "method_of_payment" },
+      { text: "Transaction Date", sortable: false, value: "transaction_date" },
       { text: "Actions", value: "actions", sortable: false },
     ],
     transactions: [],
@@ -118,12 +131,14 @@ export default {
       customer_id:0,
       total_price:0,
       method_of_payment: "",
+      transaction_date:"",
     },
     defaultItem: {
         transaction_id: 0,
         customer_id:0,
         total_price:0,
         method_of_payment: "",
+        transaction_date:"",
      
     },
   }),
@@ -221,7 +236,7 @@ export default {
     createBackend() {
       axios
         .post(
-          `http://localhost:8080/api/transaction?&customer_id=${this.editedItem.customer_id}&total_price=${this.editedItem.total_price}&method_of_payment=${this.editedItem.method_of_payment}`
+          `http://localhost:8080/api/transaction?&customer_id=${this.editedItem.customer_id}&total_price=${this.editedItem.total_price}&method_of_payment=${this.editedItem.method_of_payment}&transaction_date=${this.editedItem.transaction_date}`
         )
         .then(() => {
           //this.categories.push(response.body);

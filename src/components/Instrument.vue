@@ -18,42 +18,47 @@
 
             <v-card-text>
               <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-select v-model="editedItem.category_id"
-                      :items="CategoryIDs"
-                      filled
-                      label="Category ID"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.colour"
-                      label="Colour"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.price"
-                      label="Price"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.instrument_name"
-                      label="Name"
-                      :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
+                 <v-form v-model="isFormValid">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-select v-model="editedItem.category_id"
+                        :items="CategoryIDs"
+                        filled
+                        label="Category ID"
+                        :rules="[rules.required]"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.colour"
+                        label="Colour"
+                        :rules="[rules.required, rules.counter]"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.price"
+                        label="Price"
+                        type="number"
+                        :rules="[rules.required,rules.greaterThanZero]"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.instrument_name"
+                        label="Name"
+                        :rules="[rules.required, rules.counter]"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                 </v-form>
               </v-container>
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!isFormValid">  Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -77,6 +82,7 @@
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
+      <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
     </template>
     <template v-slot:no-data>
@@ -92,7 +98,9 @@ export default {
     rules: {
       required: (value) => !!value || "Required.",
       counter: (value) => value.length <= 20 || "Max 20 characters",
+      greaterThanZero:(value)=> parseInt(value)>0 || "Quantity must be greater than zero"
     },
+    isFormValid:false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -229,18 +237,18 @@ export default {
         });
     },
 
-    /*updateBackend() {
+    updateBackend() {
       axios
         .put(
-          `http://localhost:8080/api/instrument_category?&category_id=${this.editedItem.category_id}&category_name=${this.editedItem.category_name}`
+          `http://localhost:8080/api/instrument?&instrument_id=${this.editedItem.instrument_id}&category_id=${this.editedItem.category_id}&colour=${this.editedItem.colour}&price=${this.editedItem.price}&instrument_name=${this.editedItem.instrument_name}`
         )
         .then(() => {
           //this.categories.push(response.body);
           //this.getCategories();
-          Object.assign(this.categories[this.editedIndex], this.editedItem);
+          Object.assign(this.instruments[this.editedIndex], this.editedItem);
           this.close();
         });
-    },*/
+    },
   },
 };
 </script>

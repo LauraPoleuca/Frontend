@@ -18,35 +18,41 @@
 
             <v-card-text>
               <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-select v-model="editedItem.transaction_id"
-                      :items="transactionIDs"
-                      filled
-                      label="Transaction ID"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-select v-model="editedItem.instrument_id"
-                      :items="instrumentIDs"
-                      filled
-                      label="Instrument ID"
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="editedItem.quantity"
-                      label="Quantity"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
+                <v-form v-model="isFormValid">
+                  <v-row>
+                    <v-col cols="12">
+                      <v-select v-model="editedItem.transaction_id"
+                        :items="transactionIDs"
+                        filled
+                        label="Transaction ID"
+                        :rules="[rules.required]"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-select v-model="editedItem.instrument_id"
+                        :items="instrumentIDs"
+                        filled
+                        label="Instrument ID"
+                        :rules="[rules.required]"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="editedItem.quantity"
+                        label="Quantity"
+                        type="number"
+                        :rules="[rules.greaterThanZero,rules.required]"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-form>
               </v-container>
             </v-card-text>
 
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
-              <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="save" :disabled="!isFormValid"> Save </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -86,7 +92,10 @@ export default {
     rules: {
       required: (value) => !!value || "Required.",
       counter: (value) => value.length <= 30 || "Max 30 characters",
+      greaterThanZero:(value)=> parseInt(value)>0 || "Quantity must be greater than zero",
+      
     },
+    isFormValid:false,
     dialog: false,
     dialogDelete: false,
     headers: [
